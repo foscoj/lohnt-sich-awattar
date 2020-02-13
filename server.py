@@ -9,12 +9,17 @@ def hello():
   
   conn = sqlite3.connect('.data/entsoe.db')
   c = conn.cursor()
-  c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp DESC LIMIT 1 UNION SELECT 'last',* FROM PRICES ORDER BY timestamp ASC LIMIT 1 ''')
+  c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp ASC LIMIT 1''')
   
   s="Current Data:<br>"
   
   for row in c.fetchall():
-    s+=row+"<br>"
+    s+=str(row)+"<br>"
+    
+  c.execute('''SELECT 'last',* FROM PRICES ORDER BY timestamp DESC LIMIT 1''')
+  
+  for row in c.fetchall():
+    s+=str(row)+"<br>"
     
   conn.close()
   
@@ -51,6 +56,7 @@ def init_csv():
     print (row)
     
   conn.close()
+  return df.to_html()
 
 if __name__ == "__main__":
   app.run()
