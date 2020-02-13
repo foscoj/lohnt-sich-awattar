@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import pandas as pd
 import glob
 import sqlite3
@@ -12,9 +12,9 @@ def base():
   c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp ASC LIMIT 1''')
   
   s='''<html><head><title>Dyncamic power contract calculator</title></head><body>
-      <form action="./upload" method="post">
+      <form action="/upload" method="post">
         Select .csv to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload">
+        <input type="file" name="fileToUpload" id="fileToUpload" enctype=multipart/form-data>
         <input type="submit" value="Upload Discovergy.csv" name="submit">
       </form>
       <h2>Current Data</h2>'''
@@ -33,11 +33,28 @@ def base():
   
   return s
 
-@app.route("/upload",methods=['GET', 'POST'])
+@app.route("/upload",methods=['POST'])
 def upload():
-  file = request.files['file']
-  data = pd.read_csv(file)
-  print(data)
+  if request.method == 'POST':
+    print("post")
+    print(request)
+    file = request.files['file']
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    # if user does not select file, browser also
+    # submit an empty part without filename
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file:
+        print("dateiname:"+str(file))
+        data = pd.read_csv(file)
+        print(data)
+    
+    
   return '<a href="/">back to homepage</a>'+data.to_html()
 
 @app.route("/initcsv")
