@@ -6,6 +6,22 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
+  
+  conn = sqlite3.connect('.data/entsoe.db')
+  c = conn.cursor()
+  c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp DESC LIMIT 1 UNION SELECT 'last',* FROM PRICES ORDER BY timestamp ASC LIMIT 1 ''')
+  
+  s="Current Data:<br>"
+  
+  for row in c.fetchall():
+    s+=row+"<br>"
+    
+  conn.close()
+  
+  return s
+
+@app.route("/init_csv")
+def init_csv():
   #read csv data (should only be read of db does not exist)
   extension = 'csv'
   all_files = glob.glob('entsoe*.{}'.format(extension))
@@ -27,16 +43,14 @@ def hello():
   c.execute('CREATE TABLE IF NOT EXISTS PRICES (timestamp, price_kwh)')
   conn.commit()
   #execute the real write
-  df.to_sql('PRICES', conn, if_exists='replace', index = False)
+  df.to_sql('PRICES', conn, if_exists='replace', index = True)
   #test sqlite content
-  c.execute('''  
-  SELECT * FROM PRICES LIMIT 10
-            ''')
+  c.execute('''SELECT timestamp,price_kwh FROM PRICES LIMIT 10''')
 
   for row in c.fetchall():
     print (row)
-  
-  return df.to_html()
+    
+  conn.close()
 
 if __name__ == "__main__":
   app.run()
