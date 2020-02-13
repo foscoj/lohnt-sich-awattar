@@ -12,9 +12,9 @@ def base():
   c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp ASC LIMIT 1''')
   
   s='''<html><head><title>Dyncamic power contract calculator</title></head><body>
-      <form action="/upload" method="post">
+      <form action="/upload" method="post" enctype = "multipart/form-data" >
         Select .csv to upload:
-        <input type="file" name="file" id="file" enctype=multipart/form-data>
+        <input type="file" name="file" id="file">
         <input type="submit" value="Upload Discovergy.csv" name="submit">
       </form>
       <h2>Current Data</h2>'''
@@ -33,22 +33,22 @@ def base():
   
   return s
 
-@app.route("/upload",methods=['POST'])
+@app.route("/upload",methods=['GET','POST'])
 def upload():
   if request.method == 'POST':
     print("post")
     print(request.files)
-    file = request.files['file']
+    #file = request.files['file']
     # check if the post request has the file part
     if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
+        print('No file part')
+        return "no file part"
     file = request.files['file']
     # if user does not select file, browser also
     # submit an empty part without filename
     if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
+        print('No selected file')
+        return "no selected file"
     if file:
         print("dateiname:"+str(file))
         data = pd.read_csv(file)
