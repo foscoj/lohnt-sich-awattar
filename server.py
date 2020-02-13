@@ -30,7 +30,7 @@ def hello():
   df.to_sql('PRICES', conn, if_exists='replace', index = False)
   #test sqlite content
   c.execute('''  
-  SELECT * FROM PRICES
+  SELECT * FROM PRICES LIMIT 10
             ''')
 
   for row in c.fetchall():
