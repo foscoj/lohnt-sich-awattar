@@ -11,7 +11,7 @@ def hello():
   c = conn.cursor()
   c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp ASC LIMIT 1''')
   
-  s="Current Data:<br>"
+  s="<html><head><title>Dyncamic power contract calculator</title></head><body><h2>Current Data</h2>"
   
   for row in c.fetchall():
     s+=str(row)+"<br>"
@@ -23,9 +23,11 @@ def hello():
     
   conn.close()
   
+  s+='<br><a href="./initcsv">Initialize database from entsoe*.csv files</a></body></html>'
+  
   return s
 
-@app.route("/init_csv")
+@app.route("/initcsv")
 def init_csv():
   #read csv data (should only be read of db does not exist)
   extension = 'csv'
@@ -56,7 +58,7 @@ def init_csv():
     print (row)
     
   conn.close()
-  return df.to_html()
+  return '<a href="/">back to homepage</a>'+df.to_html()
 
 if __name__ == "__main__":
   app.run()
