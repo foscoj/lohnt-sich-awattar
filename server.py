@@ -5,13 +5,19 @@ import sqlite3
 app = Flask(__name__)
 
 @app.route("/")
-def main():
+def base():
   
   conn = sqlite3.connect('.data/entsoe.db')
   c = conn.cursor()
   c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp ASC LIMIT 1''')
   
-  s="<html><head><title>Dyncamic power contract calculator</title></head><body><h2>Current Data</h2>"
+  s='''<html><head><title>Dyncamic power contract calculator</title></head><body>
+      <form action="./upload" method="post">
+        Select .csv to upload:
+        <input type="file" name="fileToUpload" id="fileToUpload">
+        <input type="submit" value="Upload Discovergy.csv" name="submit">
+      </form>
+      <h2>Current Data</h2>'''
   
   for row in c.fetchall():
     s+=str(row)+"<br>"
@@ -27,10 +33,12 @@ def main():
   
   return s
 
-@app.route("/upload")
-def main():
-  
-  return s
+@app.route("/upload",methods=['GET', 'POST'])
+def upload():
+  file = request.files['file']
+  data = pd.read_csv(file)
+  print(data)
+  return '<a href="/">back to homepage</a>'+data.to_html()
 
 @app.route("/initcsv")
 def init_csv():
