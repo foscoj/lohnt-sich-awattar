@@ -55,7 +55,7 @@ def upload():
         print(data)
     
     
-  return '<a href="/">back to homepage</a>'+data.to_html()
+  return '<a href="/">back to homepage</a><br>'+str(data.dtypes)
 
 @app.route("/initcsv")
 def init_csv():
