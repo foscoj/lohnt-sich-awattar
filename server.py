@@ -8,8 +8,8 @@ def hello():
   extension = 'csv'
   all_files = glob.glob('entsoe*.{}'.format(extension))
   print(all_files)
-  df = pd.concat((pd.read_csv(f,index_col=None,skiprows=1,names=['mtu','price_mwh'],converters={'price_mwh':pd.to_numeric()}) for f in all_files),ignore_index=True)
-  print(df.price_mwh.dtype)
+  df = pd.concat((pd.read_csv(f,index_col=None,skiprows=1,names=['mtu','price_mwh'],na_values='n/e') for f in all_files),ignore_index=True)
+  print(df.dtypes)
   #df = pd.read_csv('entsoe_2019.csv',skiprows=1,names=['mtu','price_mwh'])
   #df['price_kwh'] = df['price_mwh'] / 1000
   #df = df.drop(['price_mwh'], axis=1)
