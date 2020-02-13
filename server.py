@@ -14,7 +14,7 @@ def base():
   s='''<html><head><title>Dyncamic power contract calculator</title></head><body>
       <form action="/upload" method="post">
         Select .csv to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload" enctype=multipart/form-data>
+        <input type="file" name="file" id="file" enctype=multipart/form-data>
         <input type="submit" value="Upload Discovergy.csv" name="submit">
       </form>
       <h2>Current Data</h2>'''
@@ -37,7 +37,7 @@ def base():
 def upload():
   if request.method == 'POST':
     print("post")
-    print(request)
+    print(request.files)
     file = request.files['file']
     # check if the post request has the file part
     if 'file' not in request.files:
