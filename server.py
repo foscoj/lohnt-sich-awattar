@@ -5,7 +5,7 @@ import sqlite3
 app = Flask(__name__)
 
 @app.route("/")
-def hello():
+def main():
   
   conn = sqlite3.connect('.data/entsoe.db')
   c = conn.cursor()
@@ -23,7 +23,12 @@ def hello():
     
   conn.close()
   
-  s+='<br><a href="./initcsv">Initialize database from entsoe*.csv files</a></body></html>'
+  s+='<br><a href="./initcsv">Initialize database from entsoe*.csv files (takes some time, only necessary once)</a></body></html>'
+  
+  return s
+
+@app.route("/upload")
+def main():
   
   return s
 
