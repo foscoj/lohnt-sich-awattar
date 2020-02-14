@@ -4,6 +4,9 @@ import glob
 import sqlite3
 app = Flask(__name__)
 
+def wh_to_kwh(x):
+    return x/1000
+
 @app.route("/")
 def base():
   
@@ -36,9 +39,6 @@ def base():
 @app.route("/upload",methods=['GET','POST'])
 def upload():
   if request.method == 'POST':
-    print("post")
-    print(request.files)
-    #file = request.files['file']
     # check if the post request has the file part
     if 'file' not in request.files:
         print('No file part')
@@ -51,11 +51,31 @@ def upload():
         return "no selected file"
     if file:
         print("dateiname:"+str(file))
-        data = pd.read_csv(file)
-        print(data)
+        dfup = pd.read_csv(file,skiprows=1,names=['timestamp','stand','w'], parse_dates=['timestamp'],usecols=['timestamp','w'],index_col=['timestamp'])
+        #print(dfup)
+        dfup['kwh']=dfup['w']/1000
+        dfup = dfup.drop(['w'], axis=1)
+        #dfup = dfup.rename(columns={"Zeit": "timestamp","kwh":"kwh"})
+        #print(dfup.dtypes)
+        print(dfup)
+        conn = sqlite3.connect('.data/entsoe.db')
+        df = pd.read_sql(
+          '''select
+          timestamp,
+          price_kwh
+          from PRICES''', conn,index_col=['timestamp'],parse_dates=['timestamp'])
+        print(df)
+        print(dfup.index)
+        print(df.index)
+        dfmerge = pd.merge(dfup, df, left_index=True, right_index=True)
+        dfmerge['cost']=dfmerge['kwh']*(dfmerge['price_kwh']+0.2057)
+        #print(dfmerge)
+        monthly = dfmerge['cost'].groupby([lambda x: x.year, lambda x: x.month]).sum().round(2)
+        
+        print(monthly)
+        conn.close()
     
-    
-  return '<a href="/">back to homepage</a><br>'+str(data.dtypes)
+  return '<a href="/">back to homepage</a><br>'+monthly.to_frame().to_html() +'<br>Dynamic cost: ' + str(monthly.sum().round(2)) + ' € <br><br>'
 
 @app.route("/initcsv")
 def init_csv():
