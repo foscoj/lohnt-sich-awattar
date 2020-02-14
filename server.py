@@ -15,9 +15,14 @@ def base():
   c.execute('''SELECT 'first',* FROM PRICES ORDER BY timestamp ASC LIMIT 1''')
   
   s='''<html><head><title>Dyncamic power contract calculator</title></head><body>
+      <h1>Is awattar something for my usage profile?</h1>
       <form action="/upload" method="post" enctype = "multipart/form-data" >
-        Select .csv to upload:
-        <input type="file" name="file" id="file">
+        <input type="number" name="net_cost" value="0.2057"> Net/Transmission cost (€/kwH)</input><br>
+        <input type="number" name="monthly_energy_cost" value="4.98"> monthly energy cost (€/month)</input><br>
+        <input type="number" name="monthly_net_cost" value="4.02"> monthly net usage cost (€/month)</input><br>
+        <input type="number" name="monthly_msb_cost" value="5.44"> monthly MSB cost (€/month) (only needed if not already at Discovergy/commetering!)</input><br>
+        Select .csv to upload:<br>
+        <input type="file" name="file" id="file"><br><br>
         <input type="submit" value="Upload Discovergy.csv" name="submit">
       </form>
       <h2>Current Data</h2>'''
@@ -38,6 +43,7 @@ def base():
 
 @app.route("/upload",methods=['GET','POST'])
 def upload():
+  result='<html><head><title>Dyncamic power contract calculator</title></head><body><h1>overview of costs</h1><a href="/">back to homepage</a><br><br>'
   if request.method == 'POST':
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -51,6 +57,14 @@ def upload():
         return "no selected file"
     if file:
         print("dateiname:"+str(file))
+        net_cost=request.form['net_cost']
+        monthly_energy_cost=request.form['monthly_energy_cost']
+        monthly_net_cost=request.form['monthly_net_cost']
+        monthly_msb_cost=request.form['monthly_msb_cost']
+        result+='net_kwh:'+net_cost+'<br>'
+        result+='monthly_energy_cost:'+monthly_energy_cost+'<br>'
+        result+='monthly_net_cost:'+monthly_net_cost+'<br>'
+        result+='monthly_msb_cost:'+monthly_msb_cost+'<br>'
         dfup = pd.read_csv(file,skiprows=1,names=['timestamp','stand','w'], parse_dates=['timestamp'],usecols=['timestamp','w'],index_col=['timestamp'])
         #print(dfup)
         dfup['kwh']=dfup['w']/1000
@@ -64,18 +78,20 @@ def upload():
           timestamp,
           price_kwh
           from PRICES''', conn,index_col=['timestamp'],parse_dates=['timestamp'])
-        print(df)
-        print(dfup.index)
-        print(df.index)
+        #print(df)
+        #print(dfup.index)
+        #print(df.index)
         dfmerge = pd.merge(dfup, df, left_index=True, right_index=True)
-        dfmerge['cost']=dfmerge['kwh']*(dfmerge['price_kwh']+0.2057)
+        dfmerge['cost']=dfmerge['kwh']*(dfmerge['price_kwh']+float(net_cost))
         #print(dfmerge)
         monthly = dfmerge['cost'].groupby([lambda x: x.year, lambda x: x.month]).sum().round(2)
-        
+        monthly = monthly.add(float(monthly_energy_cost) + float(monthly_net_cost) + float(monthly_msb_cost))
         print(monthly)
         conn.close()
     
-  return '<a href="/">back to homepage</a><br>'+monthly.to_frame().to_html() +'<br>Dynamic cost: ' + str(monthly.sum().round(2)) + ' € <br><br>'
+    result+=''+monthly.to_frame().to_html() +'<br>Total cost: ' + str(monthly.sum().round(2)) + ' € <br><br></body></html>'
+    
+  return result
 
 @app.route("/initcsv")
 def init_csv():
@@ -83,7 +99,7 @@ def init_csv():
   extension = 'csv'
   all_files = glob.glob('entsoe*.{}'.format(extension))
   print(all_files)
-  df = pd.concat((pd.read_csv(f,index_col=None,skiprows=1,names=['mtu','price_mwh'],na_values='n/e') for f in all_files),ignore_index=True)
+  df = pd.concat((pd.read_csv(f,index_col=None,skiprows=1,names=['mtu','price_mwh'],na_values=['n/e','-']) for f in all_files),ignore_index=True)
   # ---------------- #  
   #create dataframe with all necessary inputs from entsoe
   df['price_kwh'] = df['price_mwh'] / 1000
