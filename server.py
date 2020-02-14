@@ -16,8 +16,9 @@ def base():
   
   s='''<html><head><title>Dyncamic power contract calculator</title></head><body>
       <h1>Is awattar something for my usage profile?</h1>
+      Nothing is saved during the process, the data is only shown to you!<a href="https://github.com/foscoj/lohnt-sich-awattar">Sourcecode</a><br>
       <form action="/upload" method="post" enctype = "multipart/form-data" >
-        <input type="number" name="net_cost" value="0.2057"> Net/Transmission cost (€/kwH)</input><br>
+        <input type="number" name="net_cost" value="0.2057"> Net/Transmission cost (€/kWh)</input><br>
         <input type="number" name="monthly_energy_cost" value="4.98"> monthly energy cost (€/month)</input><br>
         <input type="number" name="monthly_net_cost" value="4.02"> monthly net usage cost (€/month)</input><br>
         <input type="number" name="monthly_msb_cost" value="5.44"> monthly MSB cost (€/month) (only needed if not already at Discovergy/commetering!)</input><br>
