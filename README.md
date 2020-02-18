@@ -7,6 +7,6 @@ Is a dynamic power contract suitable for your usage profile?
 - first iteration: calculate with entsoe data (germany) and awattar prices
 - project status: proof of concept
 
-*no data is stored, everything you upload is processed in real time and only shown to you*
+_no data is stored, everything you upload is processed in real time and only shown to you_
 
-try it with your data: https://lohnt-sich-awattar.glitch.me/
+[try it with your data](https://lohnt-sich-awattar.glitch.me/)
