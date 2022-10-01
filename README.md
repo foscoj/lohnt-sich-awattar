@@ -9,4 +9,6 @@ Is a dynamic power contract suitable for your usage profile?
 
 *no data is stored, everything you upload is processed in real time and only shown to you*
 
-try it with your data: https://lohnt-sich-awattar.glitch.me/
+~~try it with your data: https://lohnt-sich-awattar.glitch.me/~~ glitch is not working anymore
+
+Try Jupyter online Notebook withe the code, this is the preferred way over here: https://github.com/foscoj/Battery-Simulation
